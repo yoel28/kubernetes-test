@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ps01.memcached
+  labels:
+    app: ps01
+spec:
+  selector:
+    matchLabels:
+      app: ps01
+      tier: memcached
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: ps01
+        tier: memcached
+    spec:
+      containers:
+      - image: memcached:latest
+        resources:
+          requests:
+            cpu: 50m
+            memory: 50Mi
+          limits:
+            cpu: 300m
+            memory: 300Mi
+        name: memcached
+        ports:
+        - containerPort: 11211
+          protocol: TCP
+          name: 'port-11211'

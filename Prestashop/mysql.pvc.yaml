@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ps01.mysql.pvc
+  annotations:
+    volume.beta.kubernetes.io/storage-class: 'standard'
+  labels:
+    app: ps01
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Gi 

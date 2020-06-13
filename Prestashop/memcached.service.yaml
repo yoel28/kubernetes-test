@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ps01-memcached
+  labels:
+    app: ps01
+spec:
+  ports:
+    - name: 'port-11211'
+      port: 11211
+      protocol: TCP
+      targetPort: 11211
+  selector:
+    app: ps01
+    tier: memcached
+  clusterIP: None

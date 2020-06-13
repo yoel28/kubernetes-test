@@ -1,0 +1,6 @@
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: prestashop01
+  labels:
+    name: prestashop01

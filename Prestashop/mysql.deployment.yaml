@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ps01.mysql
+  labels:
+    app: ps01
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ps01
+      tier: mysql
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: ps01
+        tier: mysql
+    spec:
+      containers:
+      - name: mysql
+        image: mysql:5.7
+        args:
+          - "--ignore-db-dir=lost+found"
+        resources:
+          requests:
+            cpu: 50m
+            memory: 100Mi
+          limits:
+            cpu: 250m
+            memory: 600Mi        
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: ps01.mysql.secret
+              key: password
+        ports:
+        - containerPort: 3306
+          name: 'port-3306'
+          protocol: TCP
+        volumeMounts:
+        - name: ps01-mysql-persistent-storage
+          mountPath: /var/lib/mysql
+      volumes:
+      - name: ps01-mysql-persistent-storage
+        persistentVolumeClaim:
+          claimName: ps01.mysql.pvc
+      restartPolicy: Always

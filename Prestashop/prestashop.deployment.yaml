@@ -1,0 +1,82 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ps01
+  labels:
+    app: ps01
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: ps01
+      tier: frontend
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: ps01
+        tier: frontend
+    spec:
+      containers:
+      - image: prestashop/prestashop:1.7.6.5
+        resources:
+          requests:
+            cpu: 100m
+            memory: 150Mi
+          limits:
+            cpu: 500m
+            memory: 600Mi
+        name: ps01
+        env:
+        - name: PS_DEV_MODE
+          value: 'true'
+        - name: PS_DEMO_MODE
+          value: 'true'
+        - name: DB_SERVER
+          value: 'ps01-mysql'
+        - name: DB_USER
+          value: 'root'
+        - name: DB_PASSWD
+          valueFrom:
+            secretKeyRef:
+              name: ps01.mysql.secret
+              key: password
+        - name: DB_PREFIX
+          value: 'ps01_'
+        - name: DB_NAME
+          value: 'prestashop01'
+        - name: PS_INSTALL_AUTO
+          value: '1'  
+        - name: PS_ERASE_DB
+          value: '1'
+        - name: PS_DOMAIN
+          value: '192.168.99.107:30000'
+        - name: PS_LANGUAGE
+          value: 'es'
+        - name: PS_COUNTRY
+          value: 'PE'
+        - name: PS_FOLDER_ADMIN
+          value: 'admin12'
+        - name: PS_FOLDER_INSTALL
+          value: 'deleted'
+        - name: ADMIN_MAIL
+          value: 'yoel@email.com'
+        - name: ADMIN_PASSWD
+          value: '12345'
+        ports:
+        - containerPort: 80
+          protocol: TCP
+          name: 'port-80'
+        volumeMounts:
+        - name: ps01-frontend-persistent-storage
+          mountPath: /var/www
+        - name: ps01-cache-persistent-storage
+          mountPath: /var/cache
+      volumes:
+      - name: ps01-frontend-persistent-storage
+        persistentVolumeClaim:
+          claimName: ps01.system.pvc
+      - name: ps01-cache-persistent-storage
+        persistentVolumeClaim:
+          claimName: ps01.cache.pvc
