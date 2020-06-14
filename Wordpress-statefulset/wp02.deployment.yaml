@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: wp02
+  labels:
+    app: wp02
+spec:
+  serviceName: wp02-frontend
+  replicas: 3
+  selector:
+    matchLabels:
+      app: wp02
+      tier: frontend
+  template:
+    metadata:
+      labels:
+        app: wp02
+        tier: frontend
+    spec:
+      containers:
+      - image: wordpress
+        name: wp02
+        resources:
+          requests:
+            cpu: 100m
+            memory: 150Mi
+          limits:
+            cpu: 500m
+            memory: 600Mi
+        env:
+        - name: WORDPRESS_DB_HOST
+          value: 'wp02-mysql'
+        - name: WORDPRESS_DB_USER
+          value: 'root'
+        - name: WORDPRESS_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: wp02.mysql.secret
+              key: password
+        - name: WORDPRESS_DB_NAME
+          value: 'wordpress02'
+        - name: WORDPRESS_TABLE_PREFIX
+          value: 'wp02_'
+        - name: WORDPRESS_DEBUG
+          value: '1'
+        volumeMounts:
+          - name: wp02-persistent-storage
+            mountPath: /var/www
+        ports:
+        - containerPort: 80
+          protocol: TCP
+          name: 'port-80'
+  volumeClaimTemplates:
+  - metadata:
+      name: wp02-persistent-storage
+    spec:
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: 10Gi
+      storageClassName: wp02
