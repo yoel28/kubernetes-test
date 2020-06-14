@@ -1,0 +1,58 @@
+kind: ClusterConfig
+apiVersion: eksctl.io/v1alpha5
+metadata:
+  name: eks-dev
+  region: us-east-1
+vpc:
+  cidr: 10.10.0.0/16
+  autoAllocateIPv6: false
+  clusterEndpoints:
+    publicAccess: false
+    privateAccess: true
+nodeGroups:
+  - name: ng-ux
+    instancesDistribution:
+      instanceTypes: ["t3.micro", "t3.small"]
+      maxPrice: 0.01
+      onDemandBaseCapacity: 0
+      onDemandPercentageAboveBaseCapacity: 0
+      spotAllocationStrategy: "lowest-price"
+    availabilityZones: ["us-east-1a","us-east-1b"]
+    privateNetworking: true
+    volumeSize: 10
+    volumeType: gp2
+    minSize: 0
+    maxSize: 3
+    labels:
+      tier: ux
+      environment: dev
+      instance-type: spot
+    ssh:
+      allow: true
+      publicKeyName: KP.EKS-UX.DEV.YR
+    iam:
+      withAddonPolicies:
+        autoScaler: true
+  - name: ng-bs
+    instancesDistribution:
+      instanceTypes: ["t3.micro", "t3.small"]
+      maxPrice: 0.01
+      onDemandBaseCapacity: 0
+      onDemandPercentageAboveBaseCapacity: 0
+      spotAllocationStrategy: "lowest-price"
+    availabilityZones: ["us-east-1a", "us-east-1b"]
+    privateNetworking: true
+    minSize: 0
+    maxSize: 3
+    labels:
+      tier: bs
+      environment: dev
+      instance-type: spot
+    ssh:
+      allow: false
+      publicKeyName: KP.EKS-BS.DEV.YR
+    iam:
+      withAddonPolicies:
+        autoScaler: true
+
+availabilityZones: ["us-east-1a", "us-east-1b"]
