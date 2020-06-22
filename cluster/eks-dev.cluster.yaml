@@ -7,12 +7,12 @@ vpc:
   cidr: 10.10.0.0/16
   autoAllocateIPv6: false
   clusterEndpoints:
-    publicAccess: false
+    publicAccess: true
     privateAccess: true
 nodeGroups:
   - name: ng-ux
     instancesDistribution:
-      instanceTypes: ["t3.micro", "t3.small"]
+      instanceTypes: ["t3a.small", "t3.small"]
       maxPrice: 0.01
       onDemandBaseCapacity: 0
       onDemandPercentageAboveBaseCapacity: 0
@@ -22,11 +22,20 @@ nodeGroups:
     volumeSize: 10
     volumeType: gp2
     minSize: 0
-    maxSize: 3
+    maxSize: 2
     labels:
       tier: ux
       environment: dev
       instance-type: spot
+    tags:
+################Para iniciar desde 0######################
+      k8s.io/cluster-autoscaler/node-template/label/tier: "ux"
+      k8s.io/cluster-autoscaler/node-template/label/environment: "dev"
+      k8s.io/cluster-autoscaler/node-template/label/instance-type: "spot"
+##########################################################
+#      k8s.io/cluster-autoscaler/eks-dev: "owner"
+#      k8s.io/cluster-autoscaler/enabled: "true"
+##########################################################
     ssh:
       allow: true
       publicKeyName: KP.EKS-UX.DEV.YR
@@ -35,19 +44,23 @@ nodeGroups:
         autoScaler: true
   - name: ng-bs
     instancesDistribution:
-      instanceTypes: ["t3.micro", "t3.small"]
+      instanceTypes: ["t3a.small", "t3.small"]
       maxPrice: 0.01
       onDemandBaseCapacity: 0
       onDemandPercentageAboveBaseCapacity: 0
       spotAllocationStrategy: "lowest-price"
     availabilityZones: ["us-east-1a", "us-east-1b"]
     privateNetworking: true
-    minSize: 0
-    maxSize: 3
+    minSize: 1
+    maxSize: 2
     labels:
       tier: bs
       environment: dev
       instance-type: spot
+    tags:
+      k8s.io/cluster-autoscaler/node-template/label/tier: "bs"
+      k8s.io/cluster-autoscaler/node-template/label/environment: "dev"
+      k8s.io/cluster-autoscaler/node-template/label/instance-type: "spot"
     ssh:
       allow: false
       publicKeyName: KP.EKS-BS.DEV.YR
